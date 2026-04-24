@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sunny Spotlight Runner</title>
+    <link rel="icon" href="public/assets/generated/sunny_collectible_sun.png" />
+    <link rel="stylesheet" href="src/styles.css" />
+    <script defer src="src/game.js"></script>
+  </head>
+  <body>
+    <main class="game-shell" aria-label="Sunny Spotlight Runner">
+      <section class="stage-wrap">
+        <canvas id="game" width="1280" height="720" aria-label="Game canvas"></canvas>
+
+        <div class="hud" aria-live="polite">
+          <div class="hud-group">
+            <div class="stat">
+              <span class="stat-label">SCORE</span>
+              <strong id="score">0</strong>
+            </div>
+            <div class="stat">
+              <span class="stat-label">COMBO</span>
+              <strong id="combo">x1</strong>
+            </div>
+            <div class="stat stage-stat">
+              <span class="stat-label">STAGE</span>
+              <strong id="stage">1/20</strong>
+            </div>
+          </div>
+          <div class="hud-group right">
+            <div id="hearts" class="hearts" aria-label="Lives"></div>
+            <div class="energy" aria-label="Spotlight energy">
+              <span id="energyFill"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="stage-strip" aria-live="polite">
+          <strong id="stageName">햇살 공원</strong>
+          <span class="stage-progress" aria-label="Stage progress">
+            <i id="stageProgress"></i>
+          </span>
+        </div>
+
+        <div id="stageBanner" class="stage-banner">
+          <span id="stageBannerLabel">STAGE 1</span>
+          <strong id="stageBannerName">햇살 공원</strong>
+        </div>
+
+        <div id="overlay" class="overlay">
+          <div class="title-lockup">
+            <p id="result" class="result"></p>
+            <h1><span>Sunny</span> <span>Spotlight</span> <span>Runner</span></h1>
+            <button id="startButton" class="primary-button" type="button">START</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

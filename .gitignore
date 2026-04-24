@@ -1,0 +1,14 @@
+sunny-runner-smoke.png
+sunny-runner-mobile-smoke.png
+sunny-runner-stages-smoke.png
+public/assets/generated/*
+!public/assets/generated/sunny_stage_*_bg.png
+!public/assets/generated/sunny_spotlight.png
+!public/assets/generated/sunny_heart.png
+!public/assets/generated/sunny_player_*.png
+!public/assets/generated/sunny_enemy_*.png
+!public/assets/generated/sunny_obstacle_*.png
+!public/assets/generated/sunny_collectible_sun.png
+!public/assets/generated/sunny_energy_cell.png
+!public/assets/generated/sunny_finish_gate.png
+!public/assets/generated/sunny_sparkle_burst.png
