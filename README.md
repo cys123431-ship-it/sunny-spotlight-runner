@@ -1,27 +1,37 @@
 # Sunny Spotlight Runner
 
-밝은 분위기의 2D 횡스크롤 스포트라이트 러너 게임입니다.  
-정적 HTML/CSS/Canvas JavaScript만 사용하므로 별도 빌드 없이 실행하고 배포할 수 있습니다.
+A bright 20-stage 2D side-scrolling spotlight runner built with static HTML,
+CSS, and Canvas JavaScript.
 
-## Play
+## Play Online
+
+- Vercel: https://sunny-spotlight-runner.vercel.app/
+- GitHub Pages: https://cys123431-ship-it.github.io/sunny-spotlight-runner/
+
+## Local Run
 
 ```powershell
 python -m http.server 4173 --bind 127.0.0.1
 ```
 
-브라우저에서 `http://127.0.0.1:4173/`를 엽니다.
+Then open:
+
+```text
+http://127.0.0.1:4173/
+```
 
 ## Controls
 
-- `Space`, `W`, `ArrowUp`: 점프
-- `S`, `ArrowDown`, `Shift`: 슬라이드
-- 마우스/터치: 스포트라이트 조준
+- `Space`, `W`, `ArrowUp`: jump
+- `S`, `ArrowDown`, `Shift`: slide
+- Mouse or touch: aim the spotlight
 
 ## Goal
 
-20개의 서로 다른 스테이지를 완주하세요. 스포트라이트로 숨은 적을 드러내면 콤보와 점수를 얻고, 에너지 병을 먹으면 스포트라이트 게이지가 회복됩니다.
+Run through 20 different stages, avoid obstacles, reveal hidden enemies with the
+spotlight, collect energy cells, and build score combos.
 
 ## Deploy
 
-이 저장소는 정적 사이트라 GitHub Pages, Netlify, Vercel 같은 정적 호스팅에 그대로 올릴 수 있습니다.  
-GitHub Pages는 포함된 workflow가 `main` 브랜치에 push될 때 루트 폴더를 배포합니다.
+This repository is static and can be deployed to Vercel, GitHub Pages, Netlify,
+Cloudflare Pages, or any static host.
