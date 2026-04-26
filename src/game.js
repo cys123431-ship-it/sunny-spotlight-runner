@@ -20,6 +20,8 @@
   const W = 1280;
   const H = 720;
   const GROUND_Y = 574;
+  const PLAYER_START_X = W * 0.22;
+  const PLAYER_RUN_X = W * 0.29;
   const ASSET_BASE = "public/assets/generated/";
 
   const ASSETS = {
@@ -87,7 +89,7 @@
   };
 
   const player = {
-    x: W * 0.25,
+    x: PLAYER_START_X,
     y: GROUND_Y,
     vy: 0,
     width: 92,
@@ -206,6 +208,7 @@
     state.bg.sky = 0;
     state.bg.mid = 0;
     state.bg.front = 0;
+    player.x = PLAYER_START_X;
     player.y = GROUND_Y;
     player.vy = 0;
     player.slideTimer = 0;
@@ -356,6 +359,7 @@
     state.stageBannerTimer = Math.max(0, state.stageBannerTimer - dt);
     if (state.stageBannerTimer <= 0) stageBanner.classList.remove("show");
 
+    updatePlayerMotion(dt);
     player.vy += 1850 * dt;
     player.y += player.vy * dt;
     if (player.y >= GROUND_Y) {
@@ -373,9 +377,9 @@
       state.energy = Math.min(100, state.energy + 8 * dt);
     }
 
-    state.bg.sky = (state.bg.sky - state.speed * 0.055 * dt) % W;
-    state.bg.mid = (state.bg.mid - state.speed * 0.22 * dt) % W;
-    state.bg.front = (state.bg.front - state.speed * 0.85 * dt) % W;
+    state.bg.sky = (state.bg.sky - state.speed * 0.012 * dt) % W;
+    state.bg.mid = (state.bg.mid - state.speed * 0.035 * dt) % W;
+    state.bg.front = (state.bg.front - state.speed * 0.22 * dt) % W;
 
     state.spawnTimer -= dt;
     state.collectibleTimer -= dt;
@@ -400,6 +404,12 @@
     updateEntities(dt, now, spotlightLive);
     updateParticles(dt);
     updateHud();
+  }
+
+  function updatePlayerMotion(dt) {
+    const stride = player.grounded && player.slideTimer <= 0 ? Math.sin(state.distance * 0.045) * 5 : 0;
+    const targetX = PLAYER_RUN_X + stride;
+    player.x += (targetX - player.x) * Math.min(1, dt * 5.5);
   }
 
   function updateEntities(dt, now, spotlightLive) {
@@ -603,7 +613,7 @@
     ctx.fillStyle = "#8ed7ff";
     ctx.fillRect(0, 0, W, H);
     if (bg) {
-      drawStageImage(bg, state.bg.mid);
+      drawStageImage(bg);
     } else {
       drawLayer(image.sky, state.bg.sky, 0, 322, 1.02);
       drawLayer(image.mid, state.bg.mid, 210, 270, 1.04);
@@ -618,19 +628,53 @@
     grass.addColorStop(1, "rgba(98, 65, 20, 0.16)");
     ctx.fillStyle = grass;
     ctx.fillRect(0, GROUND_Y - 10, W, H - GROUND_Y + 10);
+    drawGroundMotion(stage);
   }
 
-  function drawStageImage(img, offset) {
-    const drawW = W;
-    const scroll = modulo(offset * 0.32, drawW);
-    const start = Math.floor(-scroll) - 1;
-    for (let x = start; x < W + drawW; x += drawW) {
-      ctx.drawImage(img, x, 0, drawW, H);
-    }
+  function drawStageImage(img) {
+    const scale = Math.max(W / img.naturalWidth, H / img.naturalHeight);
+    const sw = W / scale;
+    const sh = H / scale;
+    const sx = (img.naturalWidth - sw) * 0.5;
+    const sy = (img.naturalHeight - sh) * 0.5;
+    ctx.drawImage(img, sx, sy, sw, sh, 0, 0, W, H);
   }
 
   function modulo(value, base) {
     return ((value % base) + base) % base;
+  }
+
+  function drawGroundMotion(stage) {
+    if (state.mode !== "playing") return;
+    ctx.save();
+    ctx.globalCompositeOperation = "screen";
+    ctx.lineCap = "round";
+
+    const phase = modulo(state.distance * 1.25, 96);
+    for (let i = 0; i < 24; i += 1) {
+      const lane = i % 5;
+      const x = modulo(i * 137 - phase, W + 160) - 120;
+      const y = GROUND_Y + 22 + lane * 25 + Math.sin(state.distance * 0.01 + i) * 5;
+      const length = 58 + lane * 14;
+      ctx.globalAlpha = 0.12 + lane * 0.025;
+      ctx.strokeStyle = i % 3 === 0 ? stage.accent : "#ffffff";
+      ctx.lineWidth = 3 + lane * 0.5;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + length, y - 4);
+      ctx.stroke();
+    }
+
+    for (let i = 0; i < 6; i += 1) {
+      const dustX = player.x - 26 - modulo(state.distance * 0.38 + i * 32, 150);
+      const dustY = GROUND_Y - 8 + Math.sin(state.distance * 0.025 + i) * 6;
+      ctx.globalAlpha = 0.16 - i * 0.018;
+      ctx.fillStyle = "#fff8cf";
+      ctx.beginPath();
+      ctx.ellipse(dustX, dustY, 16 + i * 3, 5 + i, -0.12, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
   }
 
   function drawStageAtmosphere(stage) {
@@ -719,10 +763,19 @@
     const img = image[key];
     const w = sliding ? 118 : 96;
     const h = sliding ? 88 : 132;
+    const running = state.mode === "playing" && player.grounded && !sliding && player.hurtTimer <= 0;
+    const lift = running ? -Math.abs(Math.sin(state.distance * 0.055)) * 5 : 0;
     const x = player.x - w * 0.5;
-    const y = player.y - h;
+    const y = player.y - h + lift;
 
     ctx.save();
+    if (running) {
+      const cx = x + w * 0.5;
+      const cy = y + h;
+      ctx.translate(cx, cy);
+      ctx.rotate(0.045);
+      ctx.translate(-cx, -cy);
+    }
     if (player.hurtTimer > 0) {
       ctx.globalAlpha = 0.72 + Math.sin(performance.now() * 0.04) * 0.18;
     }
