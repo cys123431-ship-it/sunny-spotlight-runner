@@ -14,6 +14,8 @@
   const overlay = document.getElementById("overlay");
   const resultEl = document.getElementById("result");
   const startButton = document.getElementById("startButton");
+  const jumpButton = document.getElementById("jumpButton");
+  const slideButton = document.getElementById("slideButton");
 
   const W = 1280;
   const H = 720;
@@ -573,7 +575,7 @@
   }
 
   function draw() {
-    ctx.clearRect(0, 0, W, H);
+    clearCanvas();
     drawBackground();
     drawEntities("behind");
     drawPlayer();
@@ -584,6 +586,15 @@
     if (state.mode === "ready") {
       drawAttract();
     }
+  }
+
+  function clearCanvas() {
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = "#8ed7ff";
+    ctx.fillRect(0, 0, W, H);
+    ctx.restore();
   }
 
   function drawBackground() {
@@ -611,10 +622,15 @@
 
   function drawStageImage(img, offset) {
     const drawW = W;
-    const start = Math.floor((offset * 0.32) % drawW) - drawW;
+    const scroll = modulo(offset * 0.32, drawW);
+    const start = Math.floor(-scroll) - 1;
     for (let x = start; x < W + drawW; x += drawW) {
       ctx.drawImage(img, x, 0, drawW, H);
     }
+  }
+
+  function modulo(value, base) {
+    return ((value % base) + base) % base;
   }
 
   function drawStageAtmosphere(stage) {
@@ -875,6 +891,8 @@
 
   function bindEvents() {
     startButton.addEventListener("click", resetGame);
+    bindTouchButton(jumpButton, jump);
+    bindTouchButton(slideButton, slide);
     window.addEventListener("keydown", (event) => {
       if (["Space", "ArrowUp", "KeyW"].includes(event.code)) {
         event.preventDefault();
@@ -898,6 +916,19 @@
     });
     canvas.addEventListener("pointerleave", () => {
       pointer.active = false;
+    });
+  }
+
+  function bindTouchButton(button, action) {
+    if (!button) return;
+    button.addEventListener("pointerdown", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      if (state.mode === "ready" || state.mode === "gameover") {
+        resetGame();
+      } else {
+        action();
+      }
     });
   }
 
